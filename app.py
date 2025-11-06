@@ -69,35 +69,37 @@ with st.sidebar:
 tab1, tab2 = st.tabs(["🔼 Upload & Configure", "🔍 Search"])
 
 with tab1:
-    uploaded = st.file_uploader("Upload Excel (.xlsx) or CSV", type=["xlsx", "csv"])
-    if uploaded is not None:
-        file_bytes = uploaded.read()
-        is_csv = uploaded.name.lower().endswith(".csv")
-        if is_csv:
-            import io as _io
-            import pandas as _pd
-            df = _pd.read_csv(_io.BytesIO(file_bytes))
-            sheet_names = None
-        else:
-            df, sheet_names = load_excel(file_bytes)
-        st.success(f"Loaded **{uploaded.name}** ({len(df):,} rows).")
-        if sheet_names:
-            st.caption("Sheets found: " + ", ".join(sheet_names))
+    URL = "https://docs.google.com/spreadsheets/d/17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/gviz/tq?tqx=out:csv"
 
-        st.subheader("Choose search columns")
-        cols = list(df.columns)
-        default_cols = [c for c in cols if str(c).lower() in ["name", "names", "full_name"]] or cols[:1]
-        search_cols = st.multiselect("Columns to match against", cols, default=default_cols)
-        if not search_cols:
-            st.warning("Select at least one column to search against.")
-        else:
-            choices, meta = build_choices(df, search_cols)
-            st.info(f"Search will run against {len(choices):,} records.")
-            st.session_state["choices"] = choices
-            st.session_state["meta"] = meta
-            st.session_state["ready"] = True
+st.info("Loading shared dataset from Google Sheets...")
+
+@st.cache_data(show_spinner=True)
+def load_google_sheet(url: str):
+    import pandas as _pd
+    return _pd.read_csv(url)
+
+try:
+    df = load_google_sheet(URL)
+    st.success(f"Loaded {len(df):,} rows from shared Google Sheet.")
+    sheet_names = None  # keep API compatibility below
+
+    st.subheader("Choose search columns")
+    cols = list(df.columns)
+    default_cols = [c for c in cols if str(c).lower() in ["name", "names", "full_name"]] or cols[:1]
+    search_cols = st.multiselect("Columns to match against", cols, default=default_cols)
+
+    if not search_cols:
+        st.warning("Select at least one column to search against.")
     else:
-        st.session_state["ready"] = False
+        choices, meta = build_choices(df, search_cols)
+        st.info(f"Search will run against {len(choices):,} records.")
+        st.session_state["choices"] = choices
+        st.session_state["meta"] = meta
+        st.session_state["ready"] = True
+except Exception as e:
+    st.error("Could not load the Google Sheet. Check that the link is correct and the sheet is shared as 'Anyone with the link → Viewer'.")
+    st.exception(e)
+    st.session_state["ready"] = False
 
 with tab2:
     if st.session_state.get("ready"):
