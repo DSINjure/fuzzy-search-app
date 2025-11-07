@@ -77,7 +77,10 @@ st.info("Loading shared dataset from Google Sheets...")
 def load_google_sheet(url: str):
     import pandas as _pd
     return _pd.read_csv(url)
-
+if st.button("🔄 Refresh data"):
+    load_google_sheet.clear()  # clear only this function's cache
+    st.toast("Reloading data…")
+    st.rerun()                 # restart the script so it fetches fresh data
 try:
     df = load_google_sheet(URL)
     st.success(f"Loaded {len(df):,} rows from shared Google Sheet.")
