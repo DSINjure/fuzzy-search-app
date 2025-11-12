@@ -147,11 +147,19 @@ st.caption(f"Search will run against {len(choices):,} records.")
 if q:
     results_df = do_search(q, choices, meta, SCORERS[scorer_name], limit, min_score)
     st.write(f"Showing {len(results_df):,} results.")
+
     if not results_df.empty:
+        # 🧹 Remove helper columns (like 'match') before showing/downloading
+        if "match" in results_df.columns:
+            results_df = results_df.drop(columns=["match"])
+
         st.dataframe(results_df, use_container_width=True, hide_index=True)
+
         csv = results_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("Download results as CSV", csv, file_name="fuzzy_search_results.csv")
+
     else:
         st.info("No matches at this threshold. Try lowering **Minimum score** or switch to **Token set ratio**.")
 else:
     st.caption("Start typing above to see matches.")
+
