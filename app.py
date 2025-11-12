@@ -69,13 +69,43 @@ def do_search(query, choices, meta, scorer, limit, min_score):
     return pd.DataFrame(columns=["score", "match", *meta.columns])
 
 # ---------- Sidebar (settings) ----------
+# ---------- Sidebar (settings) ----------
 with st.sidebar:
     st.header("Settings")
-    scorer_name = st.selectbox("Similarity method", list(SCORERS.keys()), index=0,
-                               help="Try 'Token set ratio' if word order varies; 'Partial' for substrings.")
-    min_score = st.slider("Minimum score", 0, 100, 70)
-    limit = st.slider("Max results", 1, 100, 25)
-    st.caption("Diacritics normalized automatically (e.g., Š→S, Ł→L).")
+
+    scorer_name = st.selectbox(
+        "Similarity method",
+        list(SCORERS.keys()),
+        index=0,
+        help=(
+            "Defines how names are compared:\n"
+            "• WRatio – general-purpose, balanced for most cases\n"
+            "• Token sort ratio – good for reversed name order (e.g. 'Petraitis Jonas')\n"
+            "• Token set ratio – ignores duplicates or extra words\n"
+            "• Partial ratio – matches shorter strings inside longer ones"
+        ),
+    )
+
+    min_score = st.slider(
+        "Minimum score",
+        0, 100, 70,
+        help=(
+            "Sets how strict the match is (0–100).\n"
+            "Higher = fewer but more exact results.\n"
+            "Example: 90+ for exact matches, 70–85 for looser variants."
+        ),
+    )
+
+    limit = st.slider(
+        "Max results",
+        1, 100, 25,
+        help=(
+            "Limits how many top results are shown.\n"
+            "Useful if your list is large — e.g., show only top 25 matches."
+        ),
+    )
+
+    st.caption("Diacritics and case are ignored automatically (e.g., Š→S, Ł→L, uppercase/lowercase doesn’t matter).")
 
 # ---------- Data source (Google Sheets) ----------
 URL = "https://docs.google.com/spreadsheets/d/17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/gviz/tq?tqx=out:csv"
