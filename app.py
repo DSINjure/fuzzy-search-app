@@ -1,20 +1,32 @@
+# app.py — unified UI (no tabs), Google Sheets as the shared dataset
+
 import io
+import os
 import pandas as pd
 import streamlit as st
 from rapidfuzz import process, fuzz
 from unidecode import unidecode
 
+# ---------- Page setup ----------
 st.set_page_config(page_title="Fuzzy Name Search", page_icon="🔎", layout="wide")
 
+# Optional: small CSS tidy-up (hide Streamlit chrome)
+st.markdown("""
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
+# ---------- Helpers ----------
 def normalize_text(s: str) -> str:
     if pd.isna(s):
         return ""
     s = str(s).strip().lower()
-    s = unidecode(s)
+    s = unidecode(s)  # Š→S, Ł→L, etc.
     for ch in [",", ".", ";", ":", "_", "/", "\\", "(", ")", "[", "]", "{", "}", "'", '"']:
         s = s.replace(ch, " ")
-    s = " ".join(s.split())
-    return s
+    return " ".join(s.split())
 
 SCORERS = {
     "WRatio (balanced)": fuzz.WRatio,
@@ -24,14 +36,10 @@ SCORERS = {
 }
 
 @st.cache_data(show_spinner=False)
-def load_excel(file_bytes: bytes, sheet_name=None):
-    with io.BytesIO(file_bytes) as f:
-        xl = pd.ExcelFile(f)
-        use_sheet = sheet_name or xl.sheet_names[0]
-        df = xl.parse(use_sheet)
-    return df, xl.sheet_names
+def load_google_sheet(url: str) -> pd.DataFrame:
+    # Loads a public (view-only) Google Sheet published as CSV.
+    return pd.read_csv(url)
 
-@st.cache_data(show_spinner=False)
 def build_choices(df: pd.DataFrame, search_cols):
     records = df.copy()
     if len(search_cols) == 1:
@@ -47,75 +55,77 @@ def do_search(query, choices, meta, scorer, limit, min_score):
     qn = normalize_text(query)
     if not qn:
         return pd.DataFrame(columns=["score", "match", *meta.columns])
-    results = process.extract(qn, choices, scorer=scorer, limit=limit)
+    results = process.extract(qn, choices, scorer=scorer, limit=limit)  # (string, score, idx)
     rows = []
     for _, score, idx in results:
         if score >= min_score:
             row = meta.iloc[idx]
             rows.append({"score": int(score), "match": row["_display"], **row.to_dict()})
     if rows:
-        return pd.DataFrame(rows).sort_values("score", ascending=False, kind="mergesort").reset_index(drop=True)
+        out = pd.DataFrame(rows).sort_values("score", ascending=False, kind="mergesort").reset_index(drop=True)
+        # Keep score + match first
+        cols = ["score", "match"] + [c for c in out.columns if c not in ("score", "match")]
+        return out[cols]
     return pd.DataFrame(columns=["score", "match", *meta.columns])
 
-st.title("🔎 Fuzzy Name Search")
-st.caption("Upload your Excel/CSV and search for near-matches (diacritics and minor spelling differences tolerated).")
-
+# ---------- Sidebar (settings) ----------
 with st.sidebar:
-    st.header("⚙️ Settings")
-    scorer_name = st.selectbox("Similarity method", list(SCORERS.keys()), index=0)
+    st.header("Settings")
+    scorer_name = st.selectbox("Similarity method", list(SCORERS.keys()), index=0,
+                               help="Try 'Token set ratio' if word order varies; 'Partial' for substrings.")
     min_score = st.slider("Minimum score", 0, 100, 70)
     limit = st.slider("Max results", 1, 100, 25)
+    st.caption("Diacritics normalized automatically (e.g., Š→S, Ł→L).")
 
-tab1, tab2 = st.tabs(["🔼 Upload & Configure", "🔍 Search"])
+# ---------- Data source (Google Sheets) ----------
+URL = "https://docs.google.com/spreadsheets/d/17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/gviz/tq?tqx=out:csv"
 
-with tab1:
-    URL = "https://docs.google.com/spreadsheets/d/17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/gviz/tq?tqx=out:csv"
+# top status + refresh
+top = st.container()
+with top:
+    colA, colB = st.columns([4, 1])
+    with colA:
+        try:
+            df = load_google_sheet(URL)
+            st.markdown(f"**Loaded {len(df):,} rows from shared Google Sheet.**")
+        except Exception as e:
+            st.error("Could not load the Google Sheet. Check the link and sharing (Anyone with the link → Viewer).")
+            st.exception(e)
+            st.stop()
+    with colB:
+        if st.button("🔄 Refresh data"):
+            load_google_sheet.clear()
+            st.rerun()
 
-st.info("Loading shared dataset from Google Sheets...")
+# ---------- Main controls (columns selector + search box side by side) ----------
+cols = list(df.columns)
+default_cols = [c for c in cols if str(c).lower() in ["name", "names", "full_name"]] or cols[:1]
 
-@st.cache_data(show_spinner=True)
-def load_google_sheet(url: str):
-    import pandas as _pd
-    return _pd.read_csv(url)
-if st.button("🔄 Refresh data"):
-    load_google_sheet.clear()  # clear only this function's cache
-    st.toast("Reloading data…")
-    st.rerun()                 # restart the script so it fetches fresh data
-try:
-    df = load_google_sheet(URL)
-    st.success(f"Loaded {len(df):,} rows from shared Google Sheet.")
-    sheet_names = None  # keep API compatibility below
-
-    st.subheader("Choose search columns")
-    cols = list(df.columns)
-    default_cols = [c for c in cols if str(c).lower() in ["name", "names", "full_name"]] or cols[:1]
+left, right = st.columns([1, 2], vertical_alignment="bottom")
+with left:
+    st.subheader("Choose search columns", anchor=False)
     search_cols = st.multiselect("Columns to match against", cols, default=default_cols)
 
-    if not search_cols:
-        st.warning("Select at least one column to search against.")
-    else:
-        choices, meta = build_choices(df, search_cols)
-        st.info(f"Search will run against {len(choices):,} records.")
-        st.session_state["choices"] = choices
-        st.session_state["meta"] = meta
-        st.session_state["ready"] = True
-except Exception as e:
-    st.error("Could not load the Google Sheet. Check that the link is correct and the sheet is shared as 'Anyone with the link → Viewer'.")
-    st.exception(e)
-    st.session_state["ready"] = False
+with right:
+    q = st.text_input("Type a name (e.g., *Urjasevitz*)", "")
 
-with tab2:
-    if st.session_state.get("ready"):
-        q = st.text_input("Type a name (e.g., *Urjasevitz*)", "")
-        if q:
-            results_df = do_search(q, st.session_state["choices"], st.session_state["meta"],
-                                   SCORERS[scorer_name], limit, min_score)
-            st.write(f"Showing {len(results_df):,} results.")
-            st.dataframe(results_df, use_container_width=True, hide_index=True)
-            if len(results_df):
-                csv = results_df.to_csv(index=False).encode("utf-8-sig")
-                st.download_button("Download results as CSV", csv, file_name="fuzzy_search_results.csv")
-        else:
-            st.caption("Enter a query to see matches.")
+if not search_cols:
+    st.caption("Select at least one column to search against.")
+    st.stop()
+
+# Build search space
+choices, meta = build_choices(df, search_cols)
+st.caption(f"Search will run against {len(choices):,} records.")
+
+# ---------- Results ----------
+if q:
+    results_df = do_search(q, choices, meta, SCORERS[scorer_name], limit, min_score)
+    st.write(f"Showing {len(results_df):,} results.")
+    if not results_df.empty:
+        st.dataframe(results_df, use_container_width=True, hide_index=True)
+        csv = results_df.to_csv(index=False).encode("utf-8-sig")
+        st.download_button("Download results as CSV", csv, file_name="fuzzy_search_results.csv")
     else:
-        st.warning("Upload and configure your dataset in the first tab.")
+        st.info("No matches at this threshold. Try lowering **Minimum score** or switch to **Token set ratio**.")
+else:
+    st.caption("Start typing above to see matches.")
