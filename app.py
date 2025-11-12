@@ -149,9 +149,10 @@ if q:
     st.write(f"Showing {len(results_df):,} results.")
 
     if not results_df.empty:
-        # 🧹 Remove helper columns (like 'match') before showing/downloading
-        if "match" in results_df.columns:
-            results_df = results_df.drop(columns=["match"])
+        # 🧹 Remove helper/internal columns before showing or exporting
+        for col in ["match", "_display"]:
+            if col in results_df.columns:
+                results_df = results_df.drop(columns=[col])
 
         st.dataframe(results_df, use_container_width=True, hide_index=True)
 
@@ -162,4 +163,5 @@ if q:
         st.info("No matches at this threshold. Try lowering **Minimum score** or switch to **Token set ratio**.")
 else:
     st.caption("Start typing above to see matches.")
+
 
