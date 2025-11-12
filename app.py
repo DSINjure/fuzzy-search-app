@@ -80,22 +80,19 @@ with st.sidebar:
 # ---------- Data source (Google Sheets) ----------
 URL = "https://docs.google.com/spreadsheets/d/17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/gviz/tq?tqx=out:csv"
 
-# top status + refresh
-top = st.container()
-with top:
-    colA, colB = st.columns([4, 1])
-    with colA:
-        try:
-            df = load_google_sheet(URL)
-            st.markdown(f"**Loaded {len(df):,} rows from shared Google Sheet.**")
-        except Exception as e:
-            st.error("Could not load the Google Sheet. Check the link and sharing (Anyone with the link → Viewer).")
-            st.exception(e)
-            st.stop()
-    with colB:
-        if st.button("🔄 Refresh data"):
-            load_google_sheet.clear()
-            st.rerun()
+# Load Google Sheet silently + optional refresh button
+colA, colB = st.columns([4, 1])
+with colA:
+    try:
+        df = load_google_sheet(URL)
+    except Exception as e:
+        st.error("Could not load the Google Sheet. Check the link and sharing (Anyone with the link → Viewer).")
+        st.exception(e)
+        st.stop()
+with colB:
+    if st.button("🔄 Refresh data"):
+        load_google_sheet.clear()
+        st.rerun()
 
 # ---------- Main controls (columns selector + search box side by side) ----------
 cols = list(df.columns)
