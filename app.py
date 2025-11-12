@@ -69,7 +69,6 @@ def do_search(query, choices, meta, scorer, limit, min_score):
     return pd.DataFrame(columns=["score", "match", *meta.columns])
 
 # ---------- Sidebar (settings) ----------
-# ---------- Sidebar (settings) ----------
 with st.sidebar:
     st.header("Settings")
 
