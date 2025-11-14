@@ -150,42 +150,38 @@ if q:
     st.write(f"Showing {len(results_df):,} results.")
 
     if not results_df.empty:
-        # 🧹 Remove internal/helper columns that we don't want to show or export
+        # 🧹 Remove internal/helper columns that we don't want to show
         for col in ["match", "_display"]:
             if col in results_df.columns:
                 results_df = results_df.drop(columns=[col])
 
         IMAGE_COL = "Dokumentas"  # column in Google Sheet with document links
 
-        # Table shown to the user (without the Dokumentas link column)
-        table_df = results_df.drop(columns=[IMAGE_COL], errors="ignore")
-        st.dataframe(table_df, use_container_width=True, hide_index=True)
+        # Reorder columns so that 'Dokumentas' is last (if it exists)
+        cols = list(results_df.columns)
+        if IMAGE_COL in cols:
+            cols = [c for c in cols if c != IMAGE_COL] + [IMAGE_COL]
+            results_df = results_df[cols]
 
-        # ----- Dokumentų peržiūra (link-only) -----
+        # Show table – Dokumentas will be rendered as an eye-link if present
         if IMAGE_COL in results_df.columns:
-            st.markdown("#### Dokumentų peržiūra")
-            for i, row in results_df.iterrows():
-                # Build a nice title from name columns if they exist
-                title_bits = []
-                if "Vardas" in row and pd.notna(row["Vardas"]):
-                    title_bits.append(str(row["Vardas"]))
-                if "Pavardė" in row and pd.notna(row["Pavardė"]):
-                    title_bits.append(str(row["Pavardė"]))
-                title = " ".join(title_bits) or f"Įrašas {i}"
+            st.dataframe(
+                results_df,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    IMAGE_COL: st.column_config.LinkColumn(
+                        "Dokumentas",
+                        display_text="👁",
+                        help="Atidaryti dokumentą naujame lange",
+                    )
+                },
+            )
+        else:
+            st.dataframe(results_df, use_container_width=True, hide_index=True)
 
-                with st.expander(f"{title} — score {row.get('score','')}", expanded=False):
-                    raw_val = row.get(IMAGE_COL, "")
-                    url = raw_val if isinstance(raw_val, str) else ""
-                    url = url.strip()
-
-                    if url and url.startswith(("http://", "https://")):
-                        # Only show a clickable link – this works reliably with Drive/OneDrive
-                        st.markdown(f"[🔗 Atidaryti dokumentą naujame lange]({url})")
-                    else:
-                        st.caption("Šiam įrašui nėra tinkamos nuorodos (laukelis „Dokumentas“).")
-
-        # Download CSV (clean data, without helper columns and without Dokumentas)
-        csv = table_df.to_csv(index=False).encode("utf-8-sig")
+        # Download CSV (keep Dokumentas column so links are preserved)
+        csv = results_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("Download results as CSV", csv, file_name="fuzzy_search_results.csv")
 
     else:
