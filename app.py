@@ -145,26 +145,27 @@ st.caption(f"Search will run against {len(choices):,} records.")
 
 # ---------- Results ----------
 if q:
+    # Run fuzzy search
     results_df = do_search(q, choices, meta, SCORERS[scorer_name], limit, min_score)
     st.write(f"Showing {len(results_df):,} results.")
 
     if not results_df.empty:
-        # Remove internal helper columns
+        # 🧹 Remove internal/helper columns that we don't want to show or export
         for col in ["match", "_display"]:
             if col in results_df.columns:
                 results_df = results_df.drop(columns=[col])
 
-        IMAGE_COL = "Dokumentas"  # your column with image links
+        IMAGE_COL = "Dokumentas"  # column in Google Sheet with document links
 
-        # Table without the image column
+        # Table shown to the user (without the Dokumentas link column)
         table_df = results_df.drop(columns=[IMAGE_COL], errors="ignore")
         st.dataframe(table_df, use_container_width=True, hide_index=True)
 
-        # Document previews (one expander per result)
+        # ----- Dokumentų peržiūra (link-only) -----
         if IMAGE_COL in results_df.columns:
             st.markdown("#### Dokumentų peržiūra")
             for i, row in results_df.iterrows():
-                # Build a title from name columns if they exist
+                # Build a nice title from name columns if they exist
                 title_bits = []
                 if "Vardas" in row and pd.notna(row["Vardas"]):
                     title_bits.append(str(row["Vardas"]))
@@ -174,20 +175,16 @@ if q:
 
                 with st.expander(f"{title} — score {row.get('score','')}", expanded=False):
                     raw_val = row.get(IMAGE_COL, "")
-                    # make sure we have a clean string URL
                     url = raw_val if isinstance(raw_val, str) else ""
                     url = url.strip()
 
                     if url and url.startswith(("http://", "https://")):
-                        try:
-                            st.image(url, use_column_width=True)
-                        except Exception as e:
-                            st.warning("Nepavyko įkelti nuotraukos. Patikrinkite nuorodą šiame įraše.")
-                            st.text(str(e))
+                        # Only show a clickable link – this works reliably with Drive/OneDrive
+                        st.markdown(f"[🔗 Atidaryti dokumentą naujame lange]({url})")
                     else:
-                        st.caption("Šiam įrašui nėra tinkamos nuotraukos nuorodos (laukelis 'Dokumentas').")
+                        st.caption("Šiam įrašui nėra tinkamos nuorodos (laukelis „Dokumentas“).")
 
-        # Download CSV (clean data, still without helper columns)
+        # Download CSV (clean data, without helper columns and without Dokumentas)
         csv = table_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("Download results as CSV", csv, file_name="fuzzy_search_results.csv")
 
