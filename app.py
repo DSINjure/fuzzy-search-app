@@ -180,7 +180,7 @@ if q:
 
                     if url and url.startswith(("http://", "https://")):
                         try:
-                            st.image(url, use_container_width=True)
+                            st.image(url, use_column_width=True)
                         except Exception as e:
                             st.warning("Nepavyko įkelti nuotraukos. Patikrinkite nuorodą šiame įraše.")
                             st.text(str(e))
