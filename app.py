@@ -149,19 +149,43 @@ if q:
     st.write(f"Showing {len(results_df):,} results.")
 
     if not results_df.empty:
-        # 🧹 Remove helper/internal columns before showing or exporting
+        # Remove internal helper columns
         for col in ["match", "_display"]:
             if col in results_df.columns:
                 results_df = results_df.drop(columns=[col])
 
-        st.dataframe(results_df, use_container_width=True, hide_index=True)
+        IMAGE_COL = "Dokumentas"  # <-- your column name
 
-        csv = results_df.to_csv(index=False).encode("utf-8-sig")
+        # Show the main table without the image column
+        table_df = results_df.drop(columns=[IMAGE_COL], errors="ignore")
+        st.dataframe(table_df, use_container_width=True, hide_index=True)
+
+        # Document previews (one expander per result)
+        if IMAGE_COL in results_df.columns:
+            st.markdown("#### Dokumentų peržiūra")
+            for i, row in results_df.iterrows():
+
+                # Build a title from name columns if they exist
+                title_bits = []
+                if "Vardas" in row and pd.notna(row["Vardas"]):
+                    title_bits.append(str(row["Vardas"]))
+                if "Pavardė" in row and pd.notna(row["Pavardė"]):
+                    title_bits.append(str(row["Pavardė"]))
+                title = " ".join(title_bits) or f"Įrašas {i}"
+
+                with st.expander(f"{title} — score {row.get('score','')}", expanded=False):
+                    url = str(row.get(IMAGE_COL, "")).strip()
+                    if url:
+                        st.image(url, use_container_width=True)
+                    else:
+                        st.caption("Šiam įrašui nėra pridėta nuotrauka.")
+
+        # Download CSV (clean data)
+        csv = table_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("Download results as CSV", csv, file_name="fuzzy_search_results.csv")
 
     else:
         st.info("No matches at this threshold. Try lowering **Minimum score** or switch to **Token set ratio**.")
 else:
     st.caption("Start typing above to see matches.")
-
 
