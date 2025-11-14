@@ -154,9 +154,9 @@ if q:
             if col in results_df.columns:
                 results_df = results_df.drop(columns=[col])
 
-        IMAGE_COL = "Dokumentas"  # <-- your column name
+        IMAGE_COL = "Dokumentas"  # your column with image links
 
-        # Show the main table without the image column
+        # Table without the image column
         table_df = results_df.drop(columns=[IMAGE_COL], errors="ignore")
         st.dataframe(table_df, use_container_width=True, hide_index=True)
 
@@ -164,7 +164,6 @@ if q:
         if IMAGE_COL in results_df.columns:
             st.markdown("#### Dokumentų peržiūra")
             for i, row in results_df.iterrows():
-
                 # Build a title from name columns if they exist
                 title_bits = []
                 if "Vardas" in row and pd.notna(row["Vardas"]):
@@ -174,13 +173,21 @@ if q:
                 title = " ".join(title_bits) or f"Įrašas {i}"
 
                 with st.expander(f"{title} — score {row.get('score','')}", expanded=False):
-                    url = str(row.get(IMAGE_COL, "")).strip()
-                    if url:
-                        st.image(url, use_container_width=True)
-                    else:
-                        st.caption("Šiam įrašui nėra pridėta nuotrauka.")
+                    raw_val = row.get(IMAGE_COL, "")
+                    # make sure we have a clean string URL
+                    url = raw_val if isinstance(raw_val, str) else ""
+                    url = url.strip()
 
-        # Download CSV (clean data)
+                    if url and url.startswith(("http://", "https://")):
+                        try:
+                            st.image(url, use_container_width=True)
+                        except Exception as e:
+                            st.warning("Nepavyko įkelti nuotraukos. Patikrinkite nuorodą šiame įraše.")
+                            st.text(str(e))
+                    else:
+                        st.caption("Šiam įrašui nėra tinkamos nuotraukos nuorodos (laukelis 'Dokumentas').")
+
+        # Download CSV (clean data, still without helper columns)
         csv = table_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button("Download results as CSV", csv, file_name="fuzzy_search_results.csv")
 
@@ -188,4 +195,3 @@ if q:
         st.info("No matches at this threshold. Try lowering **Minimum score** or switch to **Token set ratio**.")
 else:
     st.caption("Start typing above to see matches.")
-
