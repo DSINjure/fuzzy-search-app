@@ -14,7 +14,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",   # 👈 this is the magic bit
 )
-# ------------------- Custom Styling -------------------
 st.markdown(
     """
     <style>
@@ -32,7 +31,7 @@ st.markdown(
             border-radius: 12px !important;
         }
 
-        /* ==== HEADER STYLE ==== */
+        /* ==== HEADER ==== */
         .custom-header {
             font-size: 36px;
             font-weight: bold;
@@ -42,16 +41,15 @@ st.markdown(
             padding-bottom: 20px;
         }
 
-        /* ====================================================
-           FORCE ONLY INPUT WIDGETS TO BE WHITE
-           Not the whole page.
-        ==================================================== */
+        /* ============================
+           INPUTS (white backgrounds)
+        ============================ */
 
-        /* Text input, Search bar */
+        /* Text input */
         .stTextInput > div > div > input {
             background-color: #ffffff !important;
-            color: #000000 !important;
-            border: 1px solid #cccccc !important;
+            color: black !important;
+            border: 1px solid #ccc !important;
             border-radius: 8px !important;
         }
 
@@ -61,28 +59,41 @@ st.markdown(
             border-radius: 8px !important;
         }
 
-        /* Multiselect input area */
-        .stMultiSelect > div > div {
+        /* ==== MULTISELECT FIX (all layers must be white) ==== */
+
+        /* Outer container */
+        .stMultiSelect > div {
             background-color: #ffffff !important;
             border-radius: 8px !important;
         }
 
-        /* Search bar inside multiselect dropdown */
-        .stMultiSelect input {
+        /* Inner container */
+        .stMultiSelect > div > div {
             background-color: #ffffff !important;
         }
 
-        /* Dropdown menu items */
+        /* Tags (selected values) */
+        .stMultiSelect div[data-baseweb="tag"] {
+            background-color: #e6f0ff !important; /* soft blue */
+            color: black !important;
+        }
+
+        /* Dropdown arrow area */
+        .stMultiSelect svg {
+            background-color: #ffffff !important;
+        }
+
+        /* Dropdown menu itself */
         div[role="listbox"] {
             background-color: #ffffff !important;
         }
 
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-# Add the header
+# Header
 st.markdown("<div class='custom-header'>Projektas: Archyvų skaitmenizacija</div>", unsafe_allow_html=True)
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
