@@ -16,16 +16,16 @@ st.set_page_config(
 )
 st.markdown(
     """
+    st.markdown(
+    """
     <style>
 
-        /* ======================================
-           PAGE BACKGROUND
-        ====================================== */
+        /* ========= PAGE BACKGROUND ========= */
         .stApp {
             background-color: #9ac288 !important;
         }
 
-        /* White card for content */
+        /* ========= MAIN CONTENT AREA ========= */
         .block-container {
             background-color: rgba(255, 255, 255, 0.88) !important;
             padding-top: 2rem !important;
@@ -33,9 +33,7 @@ st.markdown(
             border-radius: 12px !important;
         }
 
-        /* ======================================
-           CUSTOM HEADER
-        ====================================== */
+        /* ========= HEADER ========= */
         .custom-header {
             font-size: 38px;
             font-weight: 800;
@@ -45,79 +43,58 @@ st.markdown(
             padding-bottom: 25px;
         }
 
-        /* ======================================
-           TEXT INPUTS — PURE WHITE
-        ====================================== */
-        .stTextInput > div > div > input {
+        /* ========= TEXT INPUTS ========= */
+        .stTextInput input {
             background-color: #ffffff !important;
             color: black !important;
             border: 1px solid #c8c8c8 !important;
             border-radius: 8px !important;
         }
 
-        /* ======================================
-           SELECTBOX — PURE WHITE
-        ====================================== */
-        .stSelectbox > div > div {
+        /* ========= SELECTBOX ========= */
+        .stSelectbox div[data-baseweb="select"] {
             background-color: #ffffff !important;
             border-radius: 8px !important;
-        }
-
-        /* ======================================
-           MULTISELECT — CLEAN, MATCHED TO TEXTBOX
-        ====================================== */
-
-        /* Entire box */
-        .stMultiSelect > div {
-            background-color: #ffffff !important;
             border: 1px solid #c8c8c8 !important;
+        }
+
+        /* ========= MULTISELECT ========= */
+
+        /* Full multiselect box (BaseWeb select root) */
+        .stMultiSelect div[data-baseweb="select"] {
+            background-color: #ffffff !important;   /* pure white box */
             border-radius: 8px !important;
+            border: 1px solid #c8c8c8 !important;
         }
 
-        /* Remove gray tint on header/label area */
-        .stMultiSelect label + div {
+        /* Inner area inside the select root (where tags + input live) */
+        .stMultiSelect div[data-baseweb="select"] > div {
             background-color: #ffffff !important;
         }
 
-        /* Inner container */
-        .stMultiSelect > div > div {
-            background-color: #ffffff !important;
-        }
-
-        /* Remove ANY nested background colors */
-        .stMultiSelect div {
-            background-color: transparent !important;
-        }
-
-        /* Blue tag style */
+        /* Selected tags (e.g., "Pavardė") */
         .stMultiSelect div[data-baseweb="tag"] {
-            background-color: #4a90e2 !important;
-            color: white !important;
+            background-color: #4a90e2 !important;   /* blue chip */
+            color: #ffffff !important;
             border-radius: 4px !important;
-            padding-left: 4px !important;
-            padding-right: 4px !important;
         }
 
-        /* Dropdown menu */
+        /* Dropdown menu with options */
         div[role="listbox"] {
-            background-color: #ffffff !important;
-        }
-
-        /* Arrow background */
-        .stMultiSelect svg {
             background-color: #ffffff !important;
         }
 
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 # HEADER
 st.markdown(
     "<div class='custom-header'>Projektas: Archyvų skaitmenizacija</div>",
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
+
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
 st.markdown("""
