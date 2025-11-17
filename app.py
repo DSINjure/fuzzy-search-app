@@ -27,25 +27,42 @@ st.markdown("""
         background-color: #9ac288;
     }
 
+    /* Header container */
+    .header-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: -40px;
+        margin-bottom: 5px;
+    }
+
+    /* Logo styling */
+    .header-logo {
+        width: 320px;       /* Make logo larger */
+        margin-bottom: -10px;
+    }
+
     /* Main header */
     .main-header {
         text-align: center;
-        font-size: 34px;
-        font-weight: 700;
+        font-size: 38px;
+        font-weight: 800;
         color: #0d3436;
-        margin-top: -10px;
-        margin-bottom: 25px;
+        margin-top: -5px;
+        margin-bottom: 40px;
     }
 
-    /* Hide sidebar by default but allow toggle */
+    /* Hide sidebar initially */
     section[data-testid="stSidebar"] {
         display: none;
     }
+
     button[kind="header"] {
         display: flex;
     }
 
-    /* Input boxes (make them white for contrast) */
+    /* Make input boxes white */
     .stSelectbox div[data-baseweb="select"],
     .stMultiSelect div[data-baseweb="select"],
     .stTextInput input {
@@ -56,22 +73,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================
-# ===      LOGO         ===
-# =========================
-
-col_left, col_center, col_right = st.columns([1, 2, 1])
-with col_center:
-    st.image("in_iure_logo.jpg", width=220)
-
-# =========================
-# ===     MAIN TITLE    ===
+# === LOGO + TITLE BLOCK ==
 # =========================
 
 st.markdown(
-    '<h1 class="main-header">PROJEKTAS: archyvų skaitmeninimas</h1>',
+    """
+    <div class="header-wrapper">
+        <img src="in_iure_logo.jpg" class="header-logo">
+        <h1 class="main-header">PROJEKTAS: archyvų skaitmeninimas</h1>
+    </div>
+    """,
     unsafe_allow_html=True
 )
-
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
 st.markdown("""
