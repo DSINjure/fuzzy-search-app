@@ -8,7 +8,12 @@ from rapidfuzz import process, fuzz
 from unidecode import unidecode
 
 # ---------- Page setup ----------
-st.set_page_config(page_title="Fuzzy Name Search", page_icon="🔎", layout="wide")
+st.set_page_config(
+    page_title="Fuzzy Name Search",
+    page_icon="🔎",
+    layout="wide",
+    initial_sidebar_state="collapsed",   # 👈 this is the magic bit
+)
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
 st.markdown("""
