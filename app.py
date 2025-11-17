@@ -14,83 +14,64 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",   # 👈 this is the magic bit
 )
-# ---------- CUSTOM GLOBAL STYLING ----------
+import streamlit as st
+
+# =========================
+# ===   CUSTOM STYLING  ===
+# =========================
 st.markdown("""
 <style>
 
-    /* 🟢 PAGE BACKGROUND COLOR */
+    /* Page background */
     .stApp {
         background-color: #9ac288;
     }
 
-    /* 🟢 WHITE SEARCH INPUT AREAS */
-    .stTextInput > div > div > input,
-    .stMultiSelect > div,
-    .stNumberInput > div > div > input,
-    div[data-baseweb="select"] > div {
-        background-color: white !important;
-        border-radius: 6px !important;
-        border: 1px solid #ccc !important;
-    }
-
-    /* Removes grey header strip above multiselect */
-    div[data-baseweb="select"] > div:hover {
-        background-color: white !important;
-    }
-
-    /* Fixes the white block next to tags */
-    .stMultiSelect div[role="combobox"] {
-        background-color: white !important;
-    }
-
-    /* Remove grey background behind tag container */
-    .stMultiSelect > div {
-        background-color: white !important;
-    }
-
-    /* 🟢 TABLE styling – cleaner look */
-    thead tr {
-        background-color: #f0f7f0 !important;
-    }
-    tbody tr:hover {
-        background-color: #eef5ea !important;
-    }
-
-    /* 🟢 SIDEBAR collapsed by default */
-    [data-testid="collapsedControl"] {
-        display: none;
-    }
-
-    /* ------------ NEW LOGO + HEADER STYLE ------------ */
-    .logo-container {
-        display: flex;
-        justify-content: center;
-        margin-top: -25px;
-        margin-bottom: -15px;
-    }
-    .logo-container img {
-        width: 220px;
-        background: transparent !important;
-    }
+    /* Main header */
     .main-header {
         text-align: center;
         font-size: 34px;
-        margin-top: -5px;
         font-weight: 700;
         color: #0d3436;
+        margin-top: -10px;
+        margin-bottom: 25px;
+    }
+
+    /* Hide sidebar by default but allow toggle */
+    section[data-testid="stSidebar"] {
+        display: none;
+    }
+    button[kind="header"] {
+        display: flex;
+    }
+
+    /* Input boxes (make them white for contrast) */
+    .stSelectbox div[data-baseweb="select"],
+    .stMultiSelect div[data-baseweb="select"],
+    .stTextInput input {
+        background-color: white !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
-from PIL import Image
+# =========================
+# ===      LOGO         ===
+# =========================
 
-# Logo
-logo = Image.open("in_iure_logo.jpg")
-st.markdown('<div class="logo-container"><img src="in_iure_logo.jpg"></div>', unsafe_allow_html=True)
+col_left, col_center, col_right = st.columns([1, 2, 1])
+with col_center:
+    st.image("in_iure_logo.jpg", width=220)
 
-# Main title
-st.markdown('<h1 class="main-header">PROJEKTAS: archyvų skaitmeninimas</h1>', unsafe_allow_html=True)
+# =========================
+# ===     MAIN TITLE    ===
+# =========================
+
+st.markdown(
+    '<h1 class="main-header">PROJEKTAS: archyvų skaitmeninimas</h1>',
+    unsafe_allow_html=True
+)
+
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
 st.markdown("""
