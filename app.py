@@ -14,39 +14,75 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",   # 👈 this is the magic bit
 )
-# ---- Custom Styling ----
+# ------------------- Custom Styling -------------------
 st.markdown(
     """
     <style>
-        /* Force all input boxes, dropdowns, and multiselects to be bright white */
-        .stTextInput > div > div > input,
-        .stTextInput > div > div,
-        .stTextArea > div > textarea,
-        .stSelectbox > div > div,
-        .stMultiSelect > div > div,
-        .stNumberInput > div > div > input {
+
+        /* ==== WHOLE PAGE BACKGROUND ==== */
+        .stApp {
+            background-color: #9ac288 !important;
+        }
+
+        /* ==== MAIN CONTENT AREA (soft white card) ==== */
+        .block-container {
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+            border-radius: 12px !important;
+        }
+
+        /* ==== HEADER STYLE ==== */
+        .custom-header {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2d472d;
+            text-align: center;
+            padding-top: 5px;
+            padding-bottom: 20px;
+        }
+
+        /* ====================================================
+           FORCE ONLY INPUT WIDGETS TO BE WHITE
+           Not the whole page.
+        ==================================================== */
+
+        /* Text input, Search bar */
+        .stTextInput > div > div > input {
             background-color: #ffffff !important;
             color: #000000 !important;
             border: 1px solid #cccccc !important;
             border-radius: 8px !important;
         }
 
-        /* Also fix the search bar inside multiselect */
+        /* Selectbox */
+        .stSelectbox > div > div {
+            background-color: #ffffff !important;
+            border-radius: 8px !important;
+        }
+
+        /* Multiselect input area */
+        .stMultiSelect > div > div {
+            background-color: #ffffff !important;
+            border-radius: 8px !important;
+        }
+
+        /* Search bar inside multiselect dropdown */
         .stMultiSelect input {
             background-color: #ffffff !important;
         }
 
-        /* Light background for the dropdown menu items */
-        .stSelectbox div[role="listbox"],
-        .stMultiSelect div[role="listbox"] {
+        /* Dropdown menu items */
+        div[role="listbox"] {
             background-color: #ffffff !important;
         }
+
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# ---- Custom Header ----
+# Add the header
 st.markdown("<div class='custom-header'>Projektas: Archyvų skaitmenizacija</div>", unsafe_allow_html=True)
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
