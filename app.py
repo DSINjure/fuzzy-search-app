@@ -14,6 +14,39 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",   # 👈 this is the magic bit
 )
+# ---- Custom Styling ----
+st.markdown(
+    """
+    <style>
+        /* Change background color */
+        .stApp {
+            background-color: #9ac288 !important;
+        }
+
+        /* Optional: soften Streamlit's default white boxes */
+        .block-container {
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            border-radius: 12px;
+        }
+
+        /* Header styling */
+        .custom-header {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2d472d; /* darker shade for contrast */
+            text-align: center;
+            padding-top: 10px;
+            padding-bottom: 20px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ---- Custom Header ----
+st.markdown("<div class='custom-header'>Projektas: Archyvų skaitmenizacija</div>", unsafe_allow_html=True)
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
 st.markdown("""
