@@ -18,73 +18,74 @@ st.markdown(
     """
     <style>
 
-        /* ==== WHOLE PAGE BACKGROUND ==== */
+        /* ========= PAGE BACKGROUND ========= */
         .stApp {
             background-color: #9ac288 !important;
         }
 
-        /* ==== MAIN CONTENT AREA (soft white card) ==== */
+        /* ========= MAIN CONTENT AREA ========= */
         .block-container {
-            background-color: rgba(255, 255, 255, 0.85) !important;
+            background-color: rgba(255, 255, 255, 0.88) !important;
             padding-top: 2rem !important;
             padding-bottom: 2rem !important;
             border-radius: 12px !important;
         }
 
-        /* ==== HEADER ==== */
+        /* ========= CUSTOM HEADER ========= */
         .custom-header {
-            font-size: 36px;
-            font-weight: bold;
-            color: #2d472d;
+            font-size: 38px;
+            font-weight: 800;
             text-align: center;
-            padding-top: 5px;
-            padding-bottom: 20px;
+            color: #2d472d;
+            padding-top: 10px;
+            padding-bottom: 25px;
         }
 
-        /* ============================
-           INPUTS (white backgrounds)
-        ============================ */
-
-        /* Text input */
+        /* ========= TEXT INPUT ========= */
         .stTextInput > div > div > input {
             background-color: #ffffff !important;
             color: black !important;
-            border: 1px solid #ccc !important;
+            border: 1px solid #c8c8c8 !important;
             border-radius: 8px !important;
         }
 
-        /* Selectbox */
+        /* ========= SELECTBOX ========= */
         .stSelectbox > div > div {
             background-color: #ffffff !important;
             border-radius: 8px !important;
         }
 
-        /* ==== MULTISELECT FIX (all layers must be white) ==== */
+        /* ========= MULTISELECT: FIX EVERYTHING TO WHITE ========= */
 
-        /* Outer container */
+        /* Outer wrapper */
         .stMultiSelect > div {
             background-color: #ffffff !important;
             border-radius: 8px !important;
         }
 
-        /* Inner container */
+        /* Inner container (tag zone) */
         .stMultiSelect > div > div {
             background-color: #ffffff !important;
         }
 
-        /* Tags (selected values) */
-        .stMultiSelect div[data-baseweb="tag"] {
-            background-color: #e6f0ff !important; /* soft blue */
-            color: black !important;
-        }
-
-        /* Dropdown arrow area */
-        .stMultiSelect svg {
+        /* Every nested element inside multiselect */
+        .stMultiSelect div {
             background-color: #ffffff !important;
         }
 
-        /* Dropdown menu itself */
+        /* The dropdown menu */
         div[role="listbox"] {
+            background-color: #ffffff !important;
+        }
+
+        /* Tags (selected items like "Pavardė") */
+        .stMultiSelect div[data-baseweb="tag"] {
+            background-color: #e4edff !important;   /* soft pastel blue */
+            color: black !important;
+        }
+
+        /* ========= DROPDOWN ARROW FIX ========= */
+        .stMultiSelect svg {
             background-color: #ffffff !important;
         }
 
@@ -93,9 +94,11 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Header
-st.markdown("<div class='custom-header'>Projektas: Archyvų skaitmenizacija</div>", unsafe_allow_html=True)
-
+# HEADER
+st.markdown(
+    "<div class='custom-header'>Projektas: Archyvų skaitmenizacija</div>",
+    unsafe_allow_html=True
+)
 # Optional: small CSS tidy-up (hide Streamlit chrome)
 st.markdown("""
 <style>
