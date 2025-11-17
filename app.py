@@ -86,8 +86,8 @@ st.markdown("""
 from PIL import Image
 
 # Logo
-logo = Image.open("in_iure_logo.png")
-st.markdown('<div class="logo-container"><img src="in_iure_logo.png"></div>', unsafe_allow_html=True)
+logo = Image.open("in_iure_logo.jpg")
+st.markdown('<div class="logo-container"><img src="in_iure_logo.jpg"></div>', unsafe_allow_html=True)
 
 # Main title
 st.markdown('<h1 class="main-header">PROJEKTAS: archyvų skaitmeninimas</h1>', unsafe_allow_html=True)
