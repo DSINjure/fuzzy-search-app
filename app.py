@@ -18,31 +18,32 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-        /* Change background color */
-        .stApp {
-            background-color: #9ac288 !important;
+        /* Force all input boxes, dropdowns, and multiselects to be bright white */
+        .stTextInput > div > div > input,
+        .stTextInput > div > div,
+        .stTextArea > div > textarea,
+        .stSelectbox > div > div,
+        .stMultiSelect > div > div,
+        .stNumberInput > div > div > input {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #cccccc !important;
+            border-radius: 8px !important;
         }
 
-        /* Optional: soften Streamlit's default white boxes */
-        .block-container {
-            background-color: rgba(255, 255, 255, 0.8) !important;
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-            border-radius: 12px;
+        /* Also fix the search bar inside multiselect */
+        .stMultiSelect input {
+            background-color: #ffffff !important;
         }
 
-        /* Header styling */
-        .custom-header {
-            font-size: 36px;
-            font-weight: bold;
-            color: #2d472d; /* darker shade for contrast */
-            text-align: center;
-            padding-top: 10px;
-            padding-bottom: 20px;
+        /* Light background for the dropdown menu items */
+        .stSelectbox div[role="listbox"],
+        .stMultiSelect div[role="listbox"] {
+            background-color: #ffffff !important;
         }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
 # ---- Custom Header ----
