@@ -14,85 +14,83 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",   # 👈 this is the magic bit
 )
-st.markdown(
-    """
-    <style>
+# ---------- CUSTOM GLOBAL STYLING ----------
+st.markdown("""
+<style>
 
-        /* ========= PAGE BACKGROUND ========= */
-        .stApp {
-            background-color: #9ac288 !important;
-        }
+    /* 🟢 PAGE BACKGROUND COLOR */
+    .stApp {
+        background-color: #9ac288;
+    }
 
-        /* ========= MAIN CONTENT AREA ========= */
-        .block-container {
-            background-color: rgba(255, 255, 255, 0.88) !important;
-            padding-top: 2rem !important;
-            padding-bottom: 2rem !important;
-            border-radius: 12px !important;
-        }
+    /* 🟢 WHITE SEARCH INPUT AREAS */
+    .stTextInput > div > div > input,
+    .stMultiSelect > div,
+    .stNumberInput > div > div > input,
+    div[data-baseweb="select"] > div {
+        background-color: white !important;
+        border-radius: 6px !important;
+        border: 1px solid #ccc !important;
+    }
 
-        /* ========= HEADER ========= */
-        .custom-header {
-            font-size: 38px;
-            font-weight: 800;
-            text-align: center;
-            color: #2d472d;
-            padding-top: 10px;
-            padding-bottom: 25px;
-        }
+    /* Removes grey header strip above multiselect */
+    div[data-baseweb="select"] > div:hover {
+        background-color: white !important;
+    }
 
-        /* ========= TEXT INPUTS ========= */
-        .stTextInput input {
-            background-color: #ffffff !important;
-            color: black !important;
-            border: 1px solid #c8c8c8 !important;
-            border-radius: 8px !important;
-        }
+    /* Fixes the white block next to tags */
+    .stMultiSelect div[role="combobox"] {
+        background-color: white !important;
+    }
 
-        /* ========= SELECTBOX ========= */
-        .stSelectbox div[data-baseweb="select"] {
-            background-color: #ffffff !important;
-            border-radius: 8px !important;
-            border: 1px solid #c8c8c8 !important;
-        }
+    /* Remove grey background behind tag container */
+    .stMultiSelect > div {
+        background-color: white !important;
+    }
 
-        /* ========= MULTISELECT ========= */
+    /* 🟢 TABLE styling – cleaner look */
+    thead tr {
+        background-color: #f0f7f0 !important;
+    }
+    tbody tr:hover {
+        background-color: #eef5ea !important;
+    }
 
-        /* Full multiselect box (BaseWeb select root) */
-        .stMultiSelect div[data-baseweb="select"] {
-            background-color: #ffffff !important;   /* pure white box */
-            border-radius: 8px !important;
-            border: 1px solid #c8c8c8 !important;
-        }
+    /* 🟢 SIDEBAR collapsed by default */
+    [data-testid="collapsedControl"] {
+        display: none;
+    }
 
-        /* Inner area inside the select root (where tags + input live) */
-        .stMultiSelect div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-        }
+    /* ------------ NEW LOGO + HEADER STYLE ------------ */
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        margin-top: -25px;
+        margin-bottom: -15px;
+    }
+    .logo-container img {
+        width: 220px;
+        background: transparent !important;
+    }
+    .main-header {
+        text-align: center;
+        font-size: 34px;
+        margin-top: -5px;
+        font-weight: 700;
+        color: #0d3436;
+    }
 
-        /* Selected tags (e.g., "Pavardė") */
-        .stMultiSelect div[data-baseweb="tag"] {
-            background-color: #4a90e2 !important;   /* blue chip */
-            color: #ffffff !important;
-            border-radius: 4px !important;
-        }
+</style>
+""", unsafe_allow_html=True)
 
-        /* Dropdown menu with options */
-        div[role="listbox"] {
-            background-color: #ffffff !important;
-        }
+from PIL import Image
 
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# Logo
+logo = Image.open("in_iure_logo.png")
+st.markdown('<div class="logo-container"><img src="in_iure_logo.png"></div>', unsafe_allow_html=True)
 
-# HEADER
-st.markdown(
-    "<div class='custom-header'>Projektas: Archyvų skaitmenizacija</div>",
-    unsafe_allow_html=True,
-)
-
+# Main title
+st.markdown('<h1 class="main-header">PROJEKTAS: archyvų skaitmeninimas</h1>', unsafe_allow_html=True)
 
 # Optional: small CSS tidy-up (hide Streamlit chrome)
 st.markdown("""
