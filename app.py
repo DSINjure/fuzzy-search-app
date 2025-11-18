@@ -44,10 +44,6 @@ st.markdown(
         table thead tr th {
             background-color: #f0f6f0;
         }
-        /* Reduce left padding inside select / multiselect boxes */
-    div[data-baseweb="select"] > div {
-        padding-left: 0.35rem !important;  /* adjust this value if needed */
-    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -150,7 +146,6 @@ st.subheader("Choose search columns")
 cols1, cols2 = st.columns([1, 2])
 
 with cols1:
-    st.caption("Columns to match against")
     all_columns = list(df.columns)
     default_search_cols = []
 
@@ -161,14 +156,13 @@ with cols1:
             break
 
     search_cols = st.multiselect(
-        "",
+        "Columns to match against",
         options=all_columns,
         default=default_search_cols or all_columns[:1],
     )
 
 with cols2:
-    st.caption("Type a name (e.g., Urjasevitz)")
-    query = st.text_input("", "")
+    query = st.text_input("Type a name (e.g., Urjasevitz)", "")
 
 st.write("")
 st.caption(f"Search will run against {len(df)} records.")
