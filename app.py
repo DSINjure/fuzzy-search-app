@@ -73,14 +73,13 @@ st.write("")  # small spacing
 # Data loading
 # -------------------------------------------------
 GOOGLE_SHEET_CSV_URL = (
-    "https://docs.google.com/spreadsheets/d/17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/export?format=cvs"
-    # ^ change here if you switch to another sheet
+    "https://docs.google.com/spreadsheets/d/"
+    "17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/gviz/tq?tqx=out:csv"
 )
 
-
 @st.cache_data(show_spinner="Kraunamas duomenų rinkinys iš Google Sheets...")
-def load_data(url: str) -> pd.DataFrame:
-    df = pd.read_csv(url)
+def load_data() -> pd.DataFrame:
+    df = pd.read_csv(GOOGLE_SHEET_CSV_URL)
     return df
 
 
@@ -90,7 +89,7 @@ def clear_data_cache():
 
 # Load data
 try:
-    df = load_data(GOOGLE_SHEET_CSV_URL)
+    df = load_data()
 except Exception as e:
     st.error(
         "Nepavyko įkelti duomenų iš Google Sheets. "
