@@ -44,6 +44,10 @@ st.markdown(
         table thead tr th {
             background-color: #f0f6f0;
         }
+        /* Reduce left padding inside select / multiselect boxes */
+    div[data-baseweb="select"] > div {
+        padding-left: 0.35rem !important;  /* adjust this value if needed */
+    }
     </style>
     """,
     unsafe_allow_html=True,
