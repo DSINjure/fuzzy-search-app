@@ -73,8 +73,7 @@ st.write("")  # small spacing
 # Data loading
 # -------------------------------------------------
 GOOGLE_SHEET_CSV_URL = (
-    "https://docs.google.com/spreadsheets/d/"
-    "17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/edit/gviz/tq?tqx=out:csv"
+    "https://docs.google.com/spreadsheets/d/17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/export?format=cvs"
     # ^ change here if you switch to another sheet
 )
 
