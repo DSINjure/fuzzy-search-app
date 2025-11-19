@@ -173,96 +173,88 @@ st.write("")
 # Fuzzy search implementation
 # -------------------------------------------------
 def run_fuzzy_search(
-    data: pd.DataFrame,
+    df: pd.DataFrame,
     query_text: str,
-    columns: list[str],
+    search_cols: list[str],
     scorer,
-    min_score: int,
     limit: int,
+    min_score: int,
 ) -> pd.DataFrame:
-    if not query_text.strip():
+    """Run fuzzy search over the chosen columns and return a result DataFrame."""
+    records: list[dict] = []
+
+    if not query_text:
         return pd.DataFrame()
 
-    records = []
-    for _, row in data.iterrows():
+    for _, row in df.iterrows():
         combined = " ".join(
-            str(row[c]) for c in columns if c in row and pd.notna(row[c])
+            str(row[c]) for c in search_cols if c in df.columns and pd.notna(row[c])
         )
-        if not combined.strip():
-            continue
 
-    score = scorer(query_text, combined)
-    score = int(round(score))  # round to whole number
+        # Fuzzy score
+        score = scorer(query_text, combined)
+        score = int(round(score))  # ✅ round to whole number
 
-    if score >= min_score:
-     rec = row.to_dict()
-     rec["score"] = score
-     records.append(rec)
+        if score >= min_score:
+            rec = row.to_dict()
+            rec["score"] = score
+            records.append(rec)
+
+        if len(records) >= limit:
+            break
 
     if not records:
         return pd.DataFrame()
 
-    res = pd.DataFrame(records)
-    res = res.sort_values("score", ascending=False)
-    res = res.head(limit)
-    # move score to the first column
-    cols_order = ["score"] + [c for c in res.columns if c != "score"]
-    return res[cols_order]
-
+    results_df = pd.DataFrame(records)
+    results_df = results_df.sort_values("score", ascending=False).reset_index(drop=True)
+    return results_df
 
 # -------------------------------------------------
 # Run search and display results
 # -------------------------------------------------
+# ----------- Run search and display results -----------
+
 if query:
     results_df = run_fuzzy_search(
         df,
-        query_text=query,
-        columns=search_cols,
-        scorer=scorer_func,
-        min_score=min_score,
-        limit=max_results,
-    )
-    if query:
-        results_df = run_fuzzy_search(
-        df,
         query,
-        search_cols,     # <- use the multiselect value
-        scorer_func,
+        search_cols,     # multiselect from "Columns to match against"
+        scorer_func,     # chosen similarity method
         limit,
         min_score,
     )
-    
-        if not results_df.empty:
-            st.write(f"Showing {len(results_df)} result(s).")
 
-            # Remove Dokumentas column if present
-            cleaned_df = results_df.copy()
-            if "Dokumentas" in cleaned_df.columns:
-                cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
+    if not results_df.empty:
+        st.write(f"Showing {len(results_df)} result(s).")
 
-            # Replace NaN with "-"
-            display_df = cleaned_df.fillna("-")
+        # 1) Remove "Dokumentas" column if present
+        cleaned_df = results_df.copy()
+        if "Dokumentas" in cleaned_df.columns:
+            cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
 
-            # Render table
-            html_table = display_df.to_html(escape=False, index=False)
-            st.write(html_table, unsafe_allow_html=True)
+        # 2) Replace NaN with "-" for display and download
+        display_df = cleaned_df.fillna("-")
 
-            # CSV download
-            csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
-            st.download_button(
-                "Download results as CSV",
-                data=csv_bytes,
-                file_name="fuzzy_search_results.csv",
-                mime="text/csv",
-        else:
-            st.info("No matches found.")
-            )
+        # 3) Show as a normal Streamlit table
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            hide_index=True,
+        )
 
+        # 4) Download button (same cleaned data)
+        csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
+        st.download_button(
+            "Download results as CSV",
+            data=csv_bytes,
+            file_name="fuzzy_search_results.csv",
+            mime="text/csv",
+        )
     else:
         st.info(
-            "Pagal pasirinktą minimalų balą atitikmenų nerasta. "
-            "Pabandykite sumažinti **Minimalus panašumo balas** nustatymą "
-            "arba pakeisti panašumo metodą."
+            "No matches found at this threshold. "
+            "Try lowering **Minimum score** or choosing a different **Similarity method**."
         )
 else:
     st.caption("Start typing above to see matches.")
