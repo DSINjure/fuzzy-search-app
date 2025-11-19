@@ -222,7 +222,6 @@ if query:
         min_score=min_score,
         limit=max_results,
     )
-
         if not results_df.empty:
         st.write(f"Showing {len(results_df)} result(s).")
 
@@ -246,7 +245,6 @@ if query:
             file_name="fuzzy_search_results.csv",
             mime="text/csv",
         )
-
     else:
         st.info(
             "Pagal pasirinktą minimalų balą atitikmenų nerasta. "
