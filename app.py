@@ -222,7 +222,7 @@ if query:
         min_score=min_score,
         limit=max_results,
     )
-            if query:
+        if query:
         results_df = run_fuzzy_search(
             df,
             query,
