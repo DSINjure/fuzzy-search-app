@@ -231,6 +231,7 @@ if query:
         limit,
         min_score,
     )
+    
         if not results_df.empty:
             st.write(f"Showing {len(results_df)} result(s).")
 
