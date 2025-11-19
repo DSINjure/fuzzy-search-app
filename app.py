@@ -223,7 +223,7 @@ if query:
         limit=max_results,
     )
         if query:
-        results_df = run_fuzzy_search(
+           results_df = run_fuzzy_search(
             df,
             query,
             selected_columns,
@@ -231,7 +231,7 @@ if query:
             limit,
             min_score
         )
-
+            
         if not results_df.empty:
             st.write(f"Showing {len(results_df)} result(s).")
 
