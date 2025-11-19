@@ -222,29 +222,39 @@ if query:
         min_score=min_score,
         limit=max_results,
     )
-        if not results_df.empty:
-        st.write(f"Showing {len(results_df)} result(s).")
-
-        # 1) Remove "Dokumentas" column entirely
-        cleaned_df = results_df.copy()
-        if "Dokumentas" in cleaned_df.columns:
-            cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
-
-        # 2) Replace NaN with "-" for display and download
-        display_df = cleaned_df.fillna("-")
-
-        # 3) Render table (no Dokumentas column, no NaN)
-        html_table = display_df.to_html(escape=False, index=False)
-        st.write(html_table, unsafe_allow_html=True)
-
-        # 4) Download button (same cleaned data)
-        csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
-        st.download_button(
-            "Download results as CSV",
-            data=csv_bytes,
-            file_name="fuzzy_search_results.csv",
-            mime="text/csv",
+            if query:
+        results_df = run_fuzzy_search(
+            df,
+            query,
+            selected_columns,
+            scorer_func,
+            limit,
+            min_score
         )
+
+        if not results_df.empty:
+            st.write(f"Showing {len(results_df)} result(s).")
+
+            # Remove Dokumentas column if present
+            cleaned_df = results_df.copy()
+            if "Dokumentas" in cleaned_df.columns:
+                cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
+
+            # Replace NaN with "-"
+            display_df = cleaned_df.fillna("-")
+
+            # Render table
+            html_table = display_df.to_html(escape=False, index=False)
+            st.write(html_table, unsafe_allow_html=True)
+
+            # CSV download
+            csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
+            st.download_button(
+                "Download results as CSV",
+                data=csv_bytes,
+                file_name="fuzzy_search_results.csv",
+                mime="text/csv",
+            )
     else:
         st.info(
             "Pagal pasirinktą minimalų balą atitikmenų nerasta. "
