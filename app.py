@@ -254,6 +254,8 @@ if query:
                 data=csv_bytes,
                 file_name="fuzzy_search_results.csv",
                 mime="text/csv",
+        else:
+            st.info("No matches found.")
             )
 
     else:
