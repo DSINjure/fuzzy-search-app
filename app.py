@@ -114,8 +114,12 @@ top_left, top_right = st.columns([6, 1])
 with top_right:
     if st.button("🔄 Refresh data"):
         clear_data_cache()
-        st.experimental_rerun()
-
+        # Streamlit >= 1.27 uses st.rerun()
+        try:
+            st.rerun()
+        except AttributeError:
+            # Fallback for older versions
+            st.experimental_rerun()
 # -------------------------------------------------
 # Sidebar – settings
 # -------------------------------------------------
