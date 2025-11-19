@@ -1,5 +1,7 @@
 # app.py — unified UI (no tabs), Google Sheets as the shared dataset
 
+# app.py — unified UI (no tabs), Google Sheets as the shared dataset
+
 import streamlit as st
 import pandas as pd
 from rapidfuzz import fuzz
@@ -44,6 +46,13 @@ st.markdown(
         table thead tr th {
             background-color: #f0f6f0;
         }
+
+        /* Hide anchor link icons on headings */
+        .block-container h1 a,
+        .block-container h2 a,
+        .block-container h3 a {
+            display: none !important;
+        }
     </style>
     """,
     unsafe_allow_html=True,
@@ -62,7 +71,7 @@ with col_title:
     st.markdown(
         '<div class="header-title-wrapper">'
         '<div class="main-header">PROJEKTAS: archyvų skaitmeninimas</div>'
-        '</div>',
+        "</div>",
         unsafe_allow_html=True,
     )
 
@@ -76,6 +85,7 @@ GOOGLE_SHEET_CSV_URL = (
     "https://docs.google.com/spreadsheets/d/"
     "17LgN7oWAxjLf620y96HM2Yeda4J8FgCe/gviz/tq?tqx=out:csv"
 )
+
 
 @st.cache_data(show_spinner="Kraunamas duomenų rinkinys iš Google Sheets...")
 def load_data() -> pd.DataFrame:
@@ -177,7 +187,7 @@ def run_fuzzy_search(
     query_text: str,
     search_cols: list[str],
     scorer,
-    limit: int,
+    max_results: int,
     min_score: int,
 ) -> pd.DataFrame:
     """Run fuzzy search over the chosen columns and return a result DataFrame."""
@@ -200,7 +210,7 @@ def run_fuzzy_search(
             rec["score"] = score
             records.append(rec)
 
-        if len(records) >= limit:
+        if len(records) >= max_results:
             break
 
     if not records:
@@ -210,40 +220,39 @@ def run_fuzzy_search(
     results_df = results_df.sort_values("score", ascending=False).reset_index(drop=True)
     return results_df
 
+
 # -------------------------------------------------
 # Run search and display results
 # -------------------------------------------------
-# ----------- Run search and display results -----------
-
 if query:
     results_df = run_fuzzy_search(
         df,
         query,
-        search_cols,     # multiselect from "Columns to match against"
-        scorer_func,     # chosen similarity method
-        limit,
+        search_cols,   # columns chosen in multiselect
+        scorer_func,   # similarity method
+        max_results,   # ✅ correct variable
         min_score,
     )
 
     if not results_df.empty:
         st.write(f"Showing {len(results_df)} result(s).")
 
-        # 1) Remove "Dokumentas" column if present
+        # Remove "Dokumentas" column if present
         cleaned_df = results_df.copy()
         if "Dokumentas" in cleaned_df.columns:
             cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
 
-        # 2) Replace NaN with "-" for display and download
+        # Replace NaN with "-" for display and download
         display_df = cleaned_df.fillna("-")
 
-        # 3) Show as a normal Streamlit table
+        # Show as a normal Streamlit table
         st.dataframe(
             display_df,
             use_container_width=True,
             hide_index=True,
         )
 
-        # 4) Download button (same cleaned data)
+        # Download button (same cleaned data)
         csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
             "Download results as CSV",
