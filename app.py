@@ -223,31 +223,30 @@ if query:
         limit=max_results,
     )
 
-    if not results_df.empty:
+        if not results_df.empty:
         st.write(f"Showing {len(results_df)} result(s).")
 
-        # If "Dokumentas" column exists, turn it into clickable eye icons
-        display_df = results_df.copy()
-        if "Dokumentas" in display_df.columns:
-            def to_eye_link(url: str) -> str:
-                if isinstance(url, str) and url.strip():
-                    return f'<a href="{url}" target="_blank">👁️</a>'
-                return ""
+        # 1) Remove "Dokumentas" column entirely
+        cleaned_df = results_df.copy()
+        if "Dokumentas" in cleaned_df.columns:
+            cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
 
-            display_df["Dokumentas"] = display_df["Dokumentas"].apply(to_eye_link)
+        # 2) Replace NaN with "-" for display and download
+        display_df = cleaned_df.fillna("-")
 
-        # Render as HTML to allow clickable icons
+        # 3) Render table (no Dokumentas column, no NaN)
         html_table = display_df.to_html(escape=False, index=False)
         st.write(html_table, unsafe_allow_html=True)
 
-        # Download button
-        csv_bytes = results_df.to_csv(index=False).encode("utf-8-sig")
+        # 4) Download button (same cleaned data)
+        csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
             "Download results as CSV",
             data=csv_bytes,
             file_name="fuzzy_search_results.csv",
             mime="text/csv",
         )
+
     else:
         st.info(
             "Pagal pasirinktą minimalų balą atitikmenų nerasta. "
