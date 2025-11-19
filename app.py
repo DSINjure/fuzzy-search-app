@@ -191,13 +191,13 @@ def run_fuzzy_search(
         if not combined.strip():
             continue
 
-        score = scorer(query_text, combined)
-score = int(round(score))  # round to whole number
+    score = scorer(query_text, combined)
+    score = int(round(score))  # round to whole number
 
-if score >= min_score:
-    rec = row.to_dict()
-    rec["score"] = score
-    records.append(rec)
+    if score >= min_score:
+     rec = row.to_dict()
+     rec["score"] = score
+     records.append(rec)
 
     if not records:
         return pd.DataFrame()
