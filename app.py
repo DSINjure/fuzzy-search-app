@@ -222,8 +222,8 @@ if query:
         min_score=min_score,
         limit=max_results,
     )
-if query:
-    results_df = run_fuzzy_search(
+    if query:
+        results_df = run_fuzzy_search(
         df,
         query,
         search_cols,     # <- use the multiselect value
