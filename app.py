@@ -192,10 +192,12 @@ def run_fuzzy_search(
             continue
 
         score = scorer(query_text, combined)
-        if score >= min_score:
-            rec = row.to_dict()
-            rec["score"] = score
-            records.append(rec)
+score = int(round(score))  # round to whole number
+
+if score >= min_score:
+    rec = row.to_dict()
+    rec["score"] = score
+    records.append(rec)
 
     if not records:
         return pd.DataFrame()
