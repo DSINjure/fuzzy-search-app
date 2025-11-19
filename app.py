@@ -222,8 +222,8 @@ if query:
         min_score=min_score,
         limit=max_results,
     )
-        if query:
-           results_df = run_fuzzy_search(
+    if query:
+        results_df = run_fuzzy_search(
             df,
             query,
             selected_columns,
@@ -231,7 +231,7 @@ if query:
             limit,
             min_score
         )
-            
+
         if not results_df.empty:
             st.write(f"Showing {len(results_df)} result(s).")
 
@@ -255,6 +255,9 @@ if query:
                 file_name="fuzzy_search_results.csv",
                 mime="text/csv",
             )
+        else:
+            st.info("No matches found.")
+
     else:
         st.info(
             "Pagal pasirinktą minimalų balą atitikmenų nerasta. "
