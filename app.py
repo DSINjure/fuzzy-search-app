@@ -236,53 +236,62 @@ def run_fuzzy_search(
 # ---------------------------------------------------------
 # Run search and display results
 # ---------------------------------------------------------
+# ----------------------------------------------
+# Run search and display results
+# ----------------------------------------------
 if query:
     results_df = run_fuzzy_search(
         df,
         query,
-        search_cols,   # columns chosen in multiselect
-        scorer_func,   # similarity method
-        max_results,   # max results slider
-        min_score,     # minimum score slider
+        search_cols,
+        scorer_func,
+        max_results,
+        min_score,
     )
 
     if not results_df.empty:
         st.write(f"Showing {len(results_df)} result(s).")
 
-        # Work on a copy so we don't touch the original
+        # Work on a copy so we don't mutate the original
         cleaned_df = results_df.copy()
 
-        # (Just in case) drop "Dokumentas" column if it still exists
+        # 1) Drop "Dokumentas" if it still exists (defensive)
         if "Dokumentas" in cleaned_df.columns:
             cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
 
-        # Replace NaN with "-" for display and download
+        # 2) Replace NaN with "-" for display and CSV download
         display_df = cleaned_df.fillna("-")
 
-        # Remove trailing ".0" from integer-like numbers
-        # Columns where you don't want to see decimals
+        # 3) Helper to strip trailing ".0" from integer-like values
+        def strip_trailing_zero(value):
+            # Leave "-" and other non-values alone
+            if value == "-":
+                return value
+            try:
+                f = float(value)
+            except (TypeError, ValueError):
+                # Not numeric, just return as-is
+                return value
+            # If it’s an integer (e.g. 410.0), render as "410"
+            if f.is_integer():
+                return str(int(f))
+            return value
+
+        # Columns where you don't want decimals
         int_like_columns = ["Fondas", "Byla", "Lapas", "Metai", "Apyrašas"]
 
         for col in int_like_columns:
             if col in display_df.columns:
-                display_df[col] = display_df[col].apply(
-                    lambda x: (
-                        str(int(float(x)))
-                        if isinstance(x, (int, float, np.number))
-                        and float(x).is_integer()
-                        else x
-                    )
-                )
-        # ------------------------------------------------------------
+                display_df[col] = display_df[col].apply(strip_trailing_zero)
 
-        # Show as normal Streamlit table
+        # 4) Show results table
         st.dataframe(
             display_df,
             use_container_width=True,
             hide_index=True,
         )
 
-        # Download button
+        # 5) Download as CSV
         csv = display_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
             "Download results as CSV",
@@ -292,8 +301,8 @@ if query:
 
     else:
         st.info(
-            "No matches at this threshold. Try lowering **Minimum score** or "
-            "switching similarity method."
+            "No matches at this threshold. "
+            "Try lowering **Minimum score** or changing the similarity method."
         )
 else:
     st.caption("Start typing above to see matches.")
