@@ -261,7 +261,7 @@ if query:
 
         # Remove trailing ".0" from integer-like numbers
         # Columns where you don't want to see decimals
-        int_like_columns = ["Fondas", "Byla", "Lapas", "Metai"]
+        int_like_columns = ["Fondas", "Byla", "Apyrašas", "Lapas", "Metai"]
 
         for col in int_like_columns:
             if col in display_df.columns:
