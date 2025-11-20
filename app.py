@@ -1,10 +1,18 @@
 # app.py — unified UI (no tabs), Google Sheets as the shared dataset
 
-# app.py — unified UI (no tabs), Google Sheets as the shared dataset
-
 import streamlit as st
 import pandas as pd
 from rapidfuzz import fuzz
+
+
+# Helper: force integer-like numbers to display without decimals
+def format_int_like(x):
+    if pd.isna(x):
+        return "-"
+    try:
+        return str(int(float(x)))
+    except:
+        return str(x)
 
 # -------------------------------------------------
 # Page config
@@ -225,49 +233,68 @@ def run_fuzzy_search(
     return results_df
 
 
-# -------------------------------------------------
+# ---------------------------------------------------------
 # Run search and display results
-# -------------------------------------------------
+# ---------------------------------------------------------
 if query:
     results_df = run_fuzzy_search(
         df,
         query,
         search_cols,   # columns chosen in multiselect
         scorer_func,   # similarity method
-        max_results,   # ✅ correct variable
-        min_score,
+        max_results,   # max results slider
+        min_score,     # minimum score slider
     )
 
     if not results_df.empty:
         st.write(f"Showing {len(results_df)} result(s).")
 
-        # Remove "Dokumentas" column if present
+        # Work on a copy so we don't touch the original
         cleaned_df = results_df.copy()
+
+        # (Just in case) drop "Dokumentas" column if it still exists
         if "Dokumentas" in cleaned_df.columns:
             cleaned_df = cleaned_df.drop(columns=["Dokumentas"])
 
         # Replace NaN with "-" for display and download
         display_df = cleaned_df.fillna("-")
 
-        # Show as a normal Streamlit table
+        # Remove trailing ".0" from integer-like numbers
+        # Columns where you don't want to see decimals
+        int_like_columns = ["Fondas", "Byla", "Lapas", "Metai"]
+
+        for col in int_like_columns:
+            if col in display_df.columns:
+                display_df[col] = display_df[col].apply(
+                    lambda x: (
+                        str(int(float(x)))
+                        if isinstance(x, (int, float, np.number))
+                        and float(x).is_integer()
+                        else x
+                    )
+                )
+        # ------------------------------------------------------------
+
+        # Show as normal Streamlit table
         st.dataframe(
             display_df,
             use_container_width=True,
             hide_index=True,
         )
 
-        # Download button (same cleaned data)
-        csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
+        # Download button
+        csv = display_df.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
             "Download results as CSV",
-            data=csv_bytes,
+            csv,
             file_name="fuzzy_search_results.csv",
-            mime="text/csv",
         )
+
     else:
         st.info(
-            "No matches found at this threshold. "
-            "Try lowering **Minimum score** or choosing a different **Similarity method**."
+            "No matches at this threshold. Try lowering **Minimum score** or "
+            "switching similarity method."
         )
 else:
     st.caption("Start typing above to see matches.")
+
